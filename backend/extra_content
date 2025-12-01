@@ -1,0 +1,91 @@
+user_query = f"Symptoms: {symptoms}. Age: {age}. Biological Sex: {sex}. Please analyze this."
+    system_prompt = (
+        "You are a highly empathetic and knowledgeable AI symptom analyzer. Your primary goal is to "
+        "provide a brief, clear, and non-diagnostic summary of the top 3 most *possible* conditions "
+        "based *only* on the provided symptoms, age, and biological sex. For each condition, provide "
+        "the confidence score (out of 100), key associated symptoms, and, most importantly, clear, "
+        "immediate, and safe **recommendations/next steps** (e.g., self-care, monitor, see a doctor "
+        "within 24 hours, go to the ER). **Crucially, start your response with a clear, empathetic disclaimer "
+        "that you are not a doctor and cannot provide a medical diagnosis, use Markdown formatting for "
+        "bolding and lists, and avoid using HTML tags like <h1> or <h2>, preferring standard Markdown text.**"
+    )
+
+    '''try:
+        # Call the Gemini API
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=user_query,
+            config=types.GenerateContentConfig(
+                system_instruction=system_prompt,
+                # Enable Google Search grounding tool
+                tools=[{"google_search": {}}] 
+            )
+        )
+        
+        # Extract Text and Sources
+        response_text = response.text
+        sources = []
+        if response.candidates and response.candidates[0].grounding_metadata:
+            metadata = response.candidates[0].grounding_metadata
+            sources = [
+                {"uri": a.uri, "title": a.title}
+                for a in metadata.grounding_attributions
+                if a.uri and a.title
+            ]
+        
+        # Return the structured data to the frontend
+        return jsonify({
+            "text": response_text,
+            "sources": sources
+        })
+
+    except Exception as e:
+        print(f"Gemini API Error: {e}")
+        return jsonify({"error": "AI analysis failed. Please try again later."}), 500'''
+
+
+try {
+      const response = await callGeminiApi(userQuery, systemPrompt, true);
+      setDiagnosis(response);
+      setView('result');
+      
+
+    } catch (err) {
+      setError(err.message || "An unexpected error occurred during analysis.");
+      setView('form');
+      console.error("Diagnosis Error:", err);
+    } finally {
+      setLoading(false);
+    }
+
+{/* Sources */}
+      {diagnosis.sources.length > 0 && (
+        <div className="mt-6 border-t pt-4">
+          <h3 className="text-lg font-semibold text-gray-700 mb-3">Sources of Information</h3>
+          <ul className="space-y-2 text-sm text-gray-600">
+            {diagnosis.sources.map((source, index) => (
+              <li key={index} className="flex items-start">
+                <span className="text-blue-500 mr-2 flex-shrink-0">•</span>
+                <a href={source.uri} target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 underline truncate">
+                  {source.title || source.uri}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+
+google-cloud-audit-log==0.4.0
+google-cloud-bigquery==3.38.0
+google-cloud-bigtable==2.34.0
+google-cloud-core==2.5.0
+google-cloud-discoveryengine==0.13.12
+google-cloud-resource-manager==1.15.0
+google-cloud-secret-manager==2.25.0
+google-cloud-storage==3.5.0
+google-cloud-trace==1.17.0
+
+Keras-Preprocessing==1.1.2
+
+webencodings==0.5.1

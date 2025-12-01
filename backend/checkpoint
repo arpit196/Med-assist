@@ -1,0 +1,2 @@
+model_checkpoint_path: "symptom_evaluator2"
+all_model_checkpoint_paths: "symptom_evaluator2"
