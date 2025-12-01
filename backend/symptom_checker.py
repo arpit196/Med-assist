@@ -229,7 +229,7 @@ def get_diagnosis():
 @app.route('/<path:path>')
 def serve_react_app(path):
     if path != "" and os.path.exists(os.path.join(app.static_folder, path)):#os.path.exists(os.path.join(react_build_dir, path)):
-        return send_from_directory(react_build_dir, path)
+        return send_from_directory(app.static_folder, path)
     else:
         # If path not found, return React's index.html (for client-side routing)
         return send_from_directory(app.static_folder, 'index.html')
