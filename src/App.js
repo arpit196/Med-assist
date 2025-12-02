@@ -462,7 +462,7 @@ export default function App() {
     const userQuery = `Symptoms: ${symptoms.symptomText}. Age: ${symptoms.age}. Biological Sex: ${symptoms.sex}. Please analyze this.`;
     const systemPrompt = "You are a highly empathetic and knowledgeable AI symptom analyzer. Your primary goal is to provide a brief, clear, and non-diagnostic summary of the top 3 most *possible* conditions based *only* on the provided symptoms, age, and biological sex. For each condition, provide the confidence score (out of 100), key associated symptoms, and, most importantly, clear, immediate, and safe **recommendations/next steps** (e.g., self-care, monitor, see a doctor within 24 hours, go to the ER). **Crucially, start your response with a clear, empathetic disclaimer that you are not a doctor and cannot provide a medical diagnosis, use Markdown formatting for bolding and lists, and avoid using HTML tags like <h1> or <h2>, preferring standard Markdown text.**";
     try {
-      const backendResponse = await fetch('http://localhost:5000/api/diagnosis', { // Replace /api/diagnosis with your actual endpoint
+      const backendResponse = await fetch('/api/diagnosis', { // Replace /api/diagnosis with your actual endpoint
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
