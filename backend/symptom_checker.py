@@ -19,7 +19,7 @@ from sklearn.preprocessing import LabelEncoder
 app = Flask(
     __name__,
     static_folder='build', # The directory containing your React static files
-    static_url_path='/static'
+    static_url_path=''
 )
 
 #react_build_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'build'))
@@ -43,6 +43,12 @@ from dotenv import load_dotenv, find_dotenv
 
 is_loaded = load_dotenv(find_dotenv(), override=True)
 print("Env loaded:", is_loaded)
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Construct the full relative path from the script location
+PRECAUTION_FILE = os.path.join(BASE_DIR, 'disease-symptom', 'Disease precaution.csv')
+SYMPTOM_FILE = os.path.join(BASE_DIR, 'disease-symptom', 'DiseaseAndSymptoms.csv')
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent'
@@ -134,7 +140,7 @@ def extract_clinical_symptoms(text, nlp):
 
 def keyword_to_symptom_matcher(keywords):
     features = np.zeros(131)
-    df = pd.read_csv('C:\\Users\\arpit.rai\\Desktop\\Repos\\med-assist\\backend\\disease-symptom\\DiseaseAndSymptoms.csv')
+    df = pd.read_csv(SYMPTOM_FILE)
     data2=df.drop_duplicates().reset_index(drop=True)
     print(df.head)
     all_symptoms=set()
@@ -160,9 +166,8 @@ def keyword_to_symptom_matcher(keywords):
     return features
 
 def predict_disease_and_precautions(keywords):
-    care = pd.read_csv('C:\\Users\\arpit.rai\\Desktop\\Repos\\med-assist\\backend\\disease-symptom\\Disease precaution.csv')
-    print('Hi3')
-    df = pd.read_csv('C:\\Users\\arpit.rai\\Desktop\\Repos\\med-assist\\backend\\disease-symptom\\DiseaseAndSymptoms.csv')
+    care = pd.read_csv(PRECAUTION_FILE)
+    df = pd.read_csv(SYMPTOM_FILE)
 
     feats = keyword_to_symptom_matcher(keywords)
     
