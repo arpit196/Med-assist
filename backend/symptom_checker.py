@@ -41,7 +41,7 @@ import os
 import pathlib
 from dotenv import load_dotenv, find_dotenv
 
-is_loaded = load_dotenv(find_dotenv(), override=True)
+#is_loaded = load_dotenv(find_dotenv(), override=True)
 print("Env loaded:", is_loaded)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -50,7 +50,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PRECAUTION_FILE = os.path.join(BASE_DIR, 'disease-symptom', 'Disease precaution.csv')
 SYMPTOM_FILE = os.path.join(BASE_DIR, 'disease-symptom', 'DiseaseAndSymptoms.csv')
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GEMINI_API_KEY = os.environ.getenv("GEMINI_API_KEY")
 GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent'
 from google import genai
 
