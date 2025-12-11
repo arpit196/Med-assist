@@ -42,7 +42,7 @@ import pathlib
 from dotenv import load_dotenv, find_dotenv
 
 #is_loaded = load_dotenv(find_dotenv(), override=True)
-print("Env loaded:", is_loaded)
+#print("Env loaded:", is_loaded)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
