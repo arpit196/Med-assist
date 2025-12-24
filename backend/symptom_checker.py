@@ -8,7 +8,7 @@ import spacy
 import scispacy
 import requests
 from sklearn.preprocessing import LabelEncoder
-
+from typing import Dict, Any, List, Optional, Callable
 # --- Configuration ---
 # NOTE: Replace "YOUR_GEMINI_API_KEY" with your actual key, or better, set it as an environment variable.
 # For local testing, you can uncomment and set the key directly:
@@ -40,6 +40,7 @@ import math
 import os
 import pathlib
 from dotenv import load_dotenv, find_dotenv
+from fuzzywuzzy import process
 
 is_loaded = load_dotenv(find_dotenv(), override=True)
 print("Env loaded:", is_loaded)
@@ -52,7 +53,37 @@ SYMPTOM_FILE = os.path.join(BASE_DIR, 'disease-symptom', 'DiseaseAndSymptoms.csv
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent'
+print('API_KEY')
+print(GEMINI_API_KEY)
 from google import genai
+
+ACTIVE_CHATS = {} 
+
+def get_or_create_chat(user_id):
+    """Retrieves an existing chat session or creates a new one."""
+    global ACTIVE_CHATS
+    
+    if user_id not in ACTIVE_CHATS:
+        try:
+            client = genai.Client(api_key=GEMINI_API_KEY)
+        except Exception as e:
+            raise ValueError(f"Error initializing client: {e}")
+
+        # System Instruction for the AI's persona and context
+        system_instruction = (
+            "You are a compassionate, adaptive, and highly knowledgeable medical assistant. "
+            "Maintain context from previous turns. Base all recommendations on the user's "
+            "provided profile (age, sex, weight) and previous symptoms."
+        )
+
+        chat = client.chats.create(
+            model='gemini-2.5-flash', 
+            system_instruction=system_instruction
+        )
+        ACTIVE_CHATS[user_id] = chat
+        return chat
+    else:
+        return ACTIVE_CHATS[user_id]
 
 class l12Regularizer(keras.regularizers.Regularizer):
     """
@@ -138,6 +169,23 @@ def extract_clinical_symptoms(text, nlp):
     print(symptoms)
     return symptoms
 
+def map_to_closest_symptom(symptom : str, known_symptom_list: List[str], threshold=70):
+    """
+    Maps a given symptom string to the closest known symptom using fuzzy matching.
+    Returns None if similarity is below the threshold.
+    Args: 
+        symptom : a single symptom as a string
+        known_symptom_list: a list of possible symptoms that are utilized as features by the ML model.
+    Returns:
+        The closest matching symptom from the known_symptom_list that resembles the symptom the most.
+        Fuzzy matching is used here to match the strings.
+    """
+    match, score = process.extractOne(symptom, known_symptom_list)
+    if score >= threshold:
+        return match
+    else:
+        return None
+    
 def keyword_to_symptom_matcher(keywords):
     features = np.zeros(131)
     df = pd.read_csv(SYMPTOM_FILE)
@@ -161,7 +209,7 @@ def keyword_to_symptom_matcher(keywords):
             if not isinstance(symptom,str):
                 continue
             if keyword.lower() == symptom.replace('_',' ').lower():
-                print('Hi')
+                #print('Hi')
                 features[dict[symptom]] = 1
     return features
 
@@ -174,6 +222,7 @@ def predict_disease_and_precautions(keywords):
     print(feats)
     aLasso = robustLasso()
     aLasso.load_weights('symptom_evaluator2')
+    print('X')
     predicted_disease = aLasso.predict(feats[np.newaxis,:])
     ohe = LabelEncoder()
     P = df[["Disease"]]
@@ -200,14 +249,15 @@ def get_diagnosis():
         sex = data.get('sex', 'unspecified')
         height = data.get('height',100)
         weight = data.get('weight',100)
+        message = data.get('message','')
         print(symptoms)
         if not symptoms or len(symptoms) < 20:
             return jsonify({"error": "Symptom description is too short or missing."}), 400
         nlp = load_scispacy_model()
-        print('Hi')
+        print('Hi2')
         extracted_symptoms = extract_clinical_symptoms(symptoms, nlp)
         predicted_disease,care = predict_disease_and_precautions(extracted_symptoms)
-
+        print('Hi3')
         text = 'Given the predicted disease for a patient:' + str(predicted_disease) + 'with symptoms' + str(extracted_symptoms) + 'and recommendations' + str(care) + 'suggest lifestyle and diet habits that can help him manage the disease.'
         try:
             client = genai.Client(api_key=GEMINI_API_KEY)
@@ -229,6 +279,14 @@ def get_diagnosis():
             "text": str(predicted_disease),
             "gemini": response.text
         })
+
+@app.route('/privacy')
+def privacy():
+    return send_from_directory('policies', 'privacy.html')
+
+@app.route('/terms')
+def privacy():
+    return send_from_directory('policies', 'terms.html')
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
