@@ -36,6 +36,7 @@ fastjsonschema @ file:///C:/b/abs_4ev90296ly/croot/python-fastjsonschema_1731939
 Flask @ file:///C:/b/abs_28dbmjidmh/croot/flask_1756453142071/work
 Flask-Cors @ file:///tmp/build/80754af9/flask_cors_1614875208036/work
 flatbuffers==25.9.23
+fuzzywuzzy==0.18.0
 gast==0.4.0
 google-auth==2.41.1
 google-auth-oauthlib==0.4.6
