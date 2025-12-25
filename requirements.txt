@@ -31,6 +31,7 @@ fastjsonschema==2.20.0
 Flask==3.1.2
 Flask-Cors==3.0.10
 flatbuffers==25.9.23
+fuzzywuzzy==0.18.0
 gast==0.4.0
 google-auth==2.41.1
 google-genai==1.50.1
