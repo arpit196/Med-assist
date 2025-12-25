@@ -53,8 +53,8 @@ SYMPTOM_FILE = os.path.join(BASE_DIR, 'disease-symptom', 'DiseaseAndSymptoms.csv
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent'
-print('API_KEY')
-print(GEMINI_API_KEY)
+#print('API_KEY')
+#print(GEMINI_API_KEY)
 from google import genai
 
 ACTIVE_CHATS = {} 
@@ -285,7 +285,7 @@ def privacy():
     return send_from_directory('policies', 'privacy.html')
 
 @app.route('/terms')
-def privacy():
+def terms():
     return send_from_directory('policies', 'terms.html')
 
 @app.route('/', defaults={'path': ''})
